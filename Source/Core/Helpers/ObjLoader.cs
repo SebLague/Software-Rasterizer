@@ -1,10 +1,12 @@
 using SoftwareRasterizer.Types;
+using System.Globalization;
 
 namespace SoftwareRasterizer.Helpers;
 
 public static class ObjLoader
 {
 	static readonly string[] newLineStrings = ["\r\n", "\r", "\n"];
+	static readonly CultureInfo culture = CultureInfo.InvariantCulture;
 
 	// Highly inefficient and incomplete obj parser
 	public static Mesh Load(string modelString)
@@ -22,20 +24,20 @@ public static class ObjLoader
 			if (line.StartsWith("v "))
 			{
 				string[] axisStrings = line[2..].Split(' ');
-				float3 v = new(float.Parse(axisStrings[0]), float.Parse(axisStrings[1]), float.Parse(axisStrings[2]));
+				float3 v = new(float.Parse(axisStrings[0], culture), float.Parse(axisStrings[1], culture), float.Parse(axisStrings[2], culture));
 				vertexPositions.Add(v);
 			}
 			// ---- Vertex normal ----
 			else if (line.StartsWith("vn "))
 			{
 				string[] axisStrings = line[3..].Split(' ');
-				float3 v = new(float.Parse(axisStrings[0]), float.Parse(axisStrings[1]), float.Parse(axisStrings[2]));
+				float3 v = new(float.Parse(axisStrings[0], culture), float.Parse(axisStrings[1], culture), float.Parse(axisStrings[2], culture));
 				normals.Add(v);
 			}
 			else if (line.StartsWith("vt "))
 			{
 				string[] axisStrings = line[3..].Split(' ');
-				float2 t = new(float.Parse(axisStrings[0]), float.Parse(axisStrings[1]));
+				float2 t = new(float.Parse(axisStrings[0], culture), float.Parse(axisStrings[1], culture));
 				texCoords.Add(t);
 			}
 			// ---- Face Indices ----
@@ -45,9 +47,9 @@ public static class ObjLoader
 				for (int i = 0; i < faceGroupStrings.Length; i++)
 				{
 					string[] faceEntryStrings = faceGroupStrings[i].Split('/');
-					bool hasVertIndex = int.TryParse(faceEntryStrings[0], out int vertexIndex);
-					bool hasTexIndex = int.TryParse(faceEntryStrings[1], out int tCoordIndex);
-					bool hasNormalIndex = int.TryParse(faceEntryStrings[2], out int normalIndex);
+					bool hasVertIndex = int.TryParse(faceEntryStrings[0], culture, out int vertexIndex);
+					bool hasTexIndex = int.TryParse(faceEntryStrings[1], culture, out int tCoordIndex);
+					bool hasNormalIndex = int.TryParse(faceEntryStrings[2], culture, out int normalIndex);
 
 					VertexData vert = new()
 					{
@@ -60,6 +62,7 @@ public static class ObjLoader
 						allVertexData.Add(allVertexData[^(3 * i - 6)]);
 						allVertexData.Add(allVertexData[^2]);
 					}
+
 					allVertexData.Add(vert);
 				}
 			}
@@ -69,7 +72,7 @@ public static class ObjLoader
 		return mesh;
 	}
 
-	
+
 	struct VertexData
 	{
 		public float3 Position;
